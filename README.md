@@ -20,6 +20,32 @@ Built for a 10–20 year time horizon: it does not chase day-trades. It highligh
 
 ---
 
+## Screenshots
+
+Add your screenshots under `assets/screenshots/` in this repository:
+
+```text
+assets/
+└── screenshots/
+    ├── dashboard.png
+    ├── tax-assistant.png
+    └── historical-simulator.png
+```
+
+### Dashboard
+
+![Dashboard](assets/screenshots/dashboard.png)
+
+### Tax Assistant
+
+![Tax Assistant](assets/screenshots/tax-assistant.png)
+
+### Historical Simulator
+
+![Historical Simulator](assets/screenshots/historical-simulator.png)
+
+---
+
 ## Architecture
 
 ```
