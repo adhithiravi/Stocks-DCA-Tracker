@@ -1,0 +1,30 @@
+// Default holdings: 10 large-cap tech stocks + 15 Vanguard index funds/ETFs.
+export const DEFAULT_PORTFOLIO: string[] = [
+  // Tech
+  'AAPL',
+  'MSFT',
+  'NVDA',
+  'GOOGL',
+  'AMZN',
+  'META',
+  'TSLA',
+  'AVGO',
+  'CRM',
+  'ADBE',
+  // Index funds / ETFs
+  'VDIGX',
+  'VGENX',
+  'VTSAX',
+  'ESGV',
+  'VDC',
+  'VDE',
+  'VGT',
+  'VHT',
+  'VIG',
+  'VNQ',
+  'VOO',
+  'VOOG',
+  'VTI',
+  'VWO',
+  'VXUS',
+];
