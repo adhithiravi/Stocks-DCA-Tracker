@@ -17,8 +17,34 @@ const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3001;
+const defaultAllowedOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173'];
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+const corsAllowedOrigins = new Set([...defaultAllowedOrigins, ...allowedOrigins]);
+
+function applyCors(req: Request, res: Response): void {
+  const origin = req.headers.origin;
+  if (!origin) return;
+  if (!corsAllowedOrigins.has(origin)) return;
+
+  res.header('Access-Control-Allow-Origin', origin);
+  res.header('Vary', 'Origin');
+  res.header('Access-Control-Allow-Methods', 'GET,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+}
 
 app.use(express.json());
+app.use((req, res, next) => {
+  applyCors(req, res);
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 /**
  * GET /api/quotes?symbols=AAPL,MSFT,VOO

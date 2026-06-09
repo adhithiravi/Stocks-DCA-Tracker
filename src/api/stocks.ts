@@ -12,12 +12,15 @@ interface QuotesApiResponse {
   quotes: QuoteResponseItem[];
 }
 
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
+const API_PREFIX = API_BASE_URL ? `${API_BASE_URL}/api` : '/api';
+
 /**
  * Fetch current quotes for a list of symbols.
  */
 export async function fetchQuotes(symbols: string[]): Promise<QuotesMap> {
   if (!symbols.length) return {};
-  const res = await fetch(`/api/quotes?symbols=${encodeURIComponent(symbols.join(','))}`);
+  const res = await fetch(`${API_PREFIX}/quotes?symbols=${encodeURIComponent(symbols.join(','))}`);
   if (!res.ok) throw new Error(`Quotes request failed: ${res.status}`);
   const payload = (await res.json()) as QuotesApiResponse;
 
@@ -31,7 +34,7 @@ export async function fetchQuotes(symbols: string[]): Promise<QuotesMap> {
  * Fetch historical daily closes for a single symbol.
  */
 export async function fetchHistory(symbol: string, range: HistoryRange = '1y'): Promise<HistoryResponse> {
-  const res = await fetch(`/api/history?symbol=${encodeURIComponent(symbol)}&range=${range}`);
+  const res = await fetch(`${API_PREFIX}/history?symbol=${encodeURIComponent(symbol)}&range=${range}`);
   if (!res.ok) throw new Error(`History request failed: ${res.status}`);
   return (await res.json()) as HistoryResponse;
 }

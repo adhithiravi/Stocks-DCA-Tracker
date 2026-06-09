@@ -163,6 +163,34 @@ Edit those thresholds in `getBuySignals()` to match your own risk tolerance.
 
 ---
 
+## Deploy frontend on GitHub Pages
+
+This repository now includes `.github/workflows/deploy-pages.yml`, which builds
+and deploys the Vite frontend to GitHub Pages on every push to `main`.
+
+1. Push this repo to GitHub.
+2. Open **Settings -> Pages** and set **Source** to **GitHub Actions**.
+3. (Recommended) Create a backend host for `server/index.ts` (Render/Railway/Fly).
+4. Create `.env.production` from `.env.production.example` and set your backend
+   origin (example: `https://your-api.example.com`).
+5. Commit that file and push to `main`, then wait for the
+   **Deploy frontend to GitHub Pages** workflow.
+
+Your site will be available at:
+
+- `https://<your-username>.github.io/<repo-name>/`
+
+Notes:
+
+- GitHub Pages hosts only static files, not the Node/Express API server.
+- The frontend uses `HashRouter` in production so page refreshes work on Pages.
+- If `VITE_API_BASE_URL` is missing, the app falls back to `/api` (works in local
+  dev with the Vite proxy, but not on GitHub Pages unless you provide a backend).
+- In your backend host, set `CORS_ALLOWED_ORIGINS` to include your GitHub Pages
+  site URL so browser requests are allowed.
+
+---
+
 ## Disclaimer
 
 This tool is for informational and educational purposes only. It is not
