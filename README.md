@@ -28,6 +28,7 @@ Add your screenshots under `assets/screenshots/` in this repository:
 assets/
 └── screenshots/
     ├── dashboard.png
+    ├── stock-chart.png
     ├── tax-assistant.png
     └── historical-simulator.png
 ```
@@ -39,6 +40,10 @@ assets/
 ### Tax Assistant
 
 ![Tax Assistant](assets/screenshots/tax-assistant.png)
+
+### Stock Chart Modal
+
+![Stock Chart Modal](assets/screenshots/stock-chart.png)
 
 ### Historical Simulator
 
