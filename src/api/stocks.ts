@@ -13,7 +13,8 @@ interface QuotesApiResponse {
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
-const API_PREFIX = API_BASE_URL ? `${API_BASE_URL}/api` : '/api';
+export const API_PREFIX = API_BASE_URL ? `${API_BASE_URL}/api` : '/api';
+export const IS_PROD_API_CONFIGURED = !import.meta.env.PROD || Boolean(API_BASE_URL);
 
 /**
  * Fetch current quotes for a list of symbols.

@@ -8,6 +8,7 @@ import ValuationRegimeBadge from '../components/ValuationRegimeBadge';
 import AllocationOutputPanel from '../components/AllocationOutputPanel';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useQuotes } from '../hooks/useQuotes';
+import { IS_PROD_API_CONFIGURED } from '../api/stocks';
 import { STRATEGIES } from '../utils/allocation';
 import { getBuySignals } from '../utils/signals';
 import { getValuationRegime } from '../utils/valuationRegime';
@@ -51,9 +52,20 @@ export default function DashboardPage() {
 
       {error && (
         <div className="banner">
-          Could not reach the price API. Make sure the backend is running
-          (<code>npm run dev:server</code>). Yahoo data is fetched server-side because the browser
-          cannot call Yahoo directly.
+          {!IS_PROD_API_CONFIGURED && import.meta.env.PROD ? (
+            <>
+              Could not reach the price API. This production build is missing
+              <code> VITE_API_BASE_URL</code>, so requests are going to <code>/api</code> on this
+              static host. Deploy the backend separately and set the GitHub Pages build variable.
+            </>
+          ) : (
+            <>
+              Could not reach the price API. Make sure the backend is running
+              (<code>npm run dev:server</code>) or that <code>VITE_API_BASE_URL</code> points to a
+              live backend. Yahoo data is fetched server-side because the browser cannot call Yahoo
+              directly.
+            </>
+          )}
         </div>
       )}
 

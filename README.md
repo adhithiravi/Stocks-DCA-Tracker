@@ -69,36 +69,40 @@ due to CORS and cookie restrictions. All Yahoo calls happen server-side; the
 React app only ever talks to our own `/api` endpoints.
 
 In development, Vite's dev server proxies `/api` to the Express server on port
-3001 (configured in `vite.config.js`), so there are no CORS issues locally.
+3001 (configured in `vite.config.ts`), so there are no CORS issues locally.
 
 ### Project structure
 
 ```
 dca-dashboard/
 ├── index.html              # Vite HTML entry
-├── vite.config.js          # Vite + dev proxy config
+├── vite.config.ts          # Vite + dev proxy config
 ├── package.json            # Scripts + dependencies
 ├── server/
-│   └── index.js            # Express proxy: /api/quotes, /api/history
+│   └── index.ts            # Express proxy: /api/quotes, /api/history
 └── src/
-    ├── main.jsx            # React entry
-    ├── App.jsx             # Top-level composition + shared state
+    ├── main.tsx            # React entry
+    ├── App.tsx             # Top-level composition + shared state
     ├── index.css           # Styles
     ├── api/
-    │   └── stocks.js       # fetch() wrappers for the backend
+    │   └── stocks.ts       # fetch() wrappers for the backend
     ├── hooks/
-    │   ├── usePortfolio.js # Portfolio state + localStorage
-    │   └── useQuotes.js    # Quote fetching + loading/error state
+    │   ├── usePortfolio.ts # Portfolio state + localStorage
+    │   └── useQuotes.ts    # Quote fetching + loading/error state
     ├── utils/
-    │   ├── signals.js      # Buy-signal logic (pure functions)
-    │   ├── allocation.js   # Allocation strategies (pure functions)
-    │   └── constants.js    # Default portfolio
+    │   ├── signals.ts      # Buy-signal logic (pure functions)
+    │   ├── allocation.ts   # Allocation strategies (pure functions)
+    │   └── constants.ts    # Default portfolio
+    ├── pages/
+    │   ├── DashboardPage.tsx
+    │   ├── TaxAssistantPage.tsx
+    │   └── HistoricalSimulatorPage.tsx
     └── components/
-        ├── MetricGrid.jsx
-        ├── ContributionSettings.jsx
-        ├── AllocationRecommendations.jsx
-        ├── DipOpportunities.jsx
-        └── HoldingsGrid.jsx
+        ├── MetricGrid.tsx
+        ├── ContributionSettings.tsx
+        ├── AllocationOutputPanel.tsx
+        ├── DipOpportunities.tsx
+        └── HoldingsGrid.tsx
 ```
 
 ---
@@ -131,7 +135,7 @@ npm start          # runs the Express API
 ```
 
 To serve the built frontend from Express in production, add a static handler
-to `server/index.js` pointing at `dist/` (left as a deliberate next step so you
+to `server/index.ts` pointing at `dist/` (left as a deliberate next step so you
 can choose your own hosting setup — e.g. serving statically, or deploying the
 API as a serverless function).
 
@@ -139,7 +143,7 @@ API as a serverless function).
 
 ## How the buy signals work
 
-All logic lives in `src/utils/signals.js` as pure functions, so it's easy to
+All logic lives in `src/utils/signals.ts` as pure functions, so it's easy to
 tweak the thresholds or add your own rules. The defaults reflect a conservative,
 long-horizon "buy the dip" approach rather than active trading:
 
@@ -159,7 +163,7 @@ Edit those thresholds in `getBuySignals()` to match your own risk tolerance.
   component (e.g. with Chart.js) that calls `fetchHistory(symbol, '1y')`.
 - **Price alerts** — store target prices per symbol alongside the portfolio.
 - **Auto-refresh** — add an interval in `useQuotes` to poll periodically.
-- **More signals** — RSI, MACD, or distance-from-all-time-high in `signals.js`.
+- **More signals** — RSI, MACD, or distance-from-all-time-high in `signals.ts`.
 
 ---
 
@@ -170,10 +174,13 @@ and deploys the Vite frontend to GitHub Pages on every push to `main`.
 
 1. Push this repo to GitHub.
 2. Open **Settings -> Pages** and set **Source** to **GitHub Actions**.
-3. (Recommended) Create a backend host for `server/index.ts` (Render/Railway/Fly).
-4. Create `.env.production` from `.env.production.example` and set your backend
-   origin (example: `https://your-api.example.com`).
-5. Commit that file and push to `main`, then wait for the
+3. Deploy `server/index.ts` to a backend host (Render/Railway/Fly/Cloud Run).
+4. In your GitHub repo, set **Settings -> Secrets and variables -> Actions**:
+   - **Variables**: `VITE_API_BASE_URL=https://your-api.example.com`
+   - (or set it as a secret with the same name)
+5. In your backend host, set `CORS_ALLOWED_ORIGINS` to include your Pages origin
+   (example: `https://adhithiravi.github.io`).
+6. Push to `main`, then wait for the
    **Deploy frontend to GitHub Pages** workflow.
 
 Your site will be available at:
@@ -184,10 +191,10 @@ Notes:
 
 - GitHub Pages hosts only static files, not the Node/Express API server.
 - The frontend uses `HashRouter` in production so page refreshes work on Pages.
-- If `VITE_API_BASE_URL` is missing, the app falls back to `/api` (works in local
-  dev with the Vite proxy, but not on GitHub Pages unless you provide a backend).
-- In your backend host, set `CORS_ALLOWED_ORIGINS` to include your GitHub Pages
-  site URL so browser requests are allowed.
+- If `VITE_API_BASE_URL` is missing, the frontend falls back to `/api` (works in
+  local dev with the Vite proxy, but fails on GitHub Pages).
+- The Pages workflow now fails fast when `VITE_API_BASE_URL` is missing to avoid
+  shipping a broken build.
 
 ---
 
