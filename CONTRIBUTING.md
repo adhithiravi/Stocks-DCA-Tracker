@@ -50,7 +50,7 @@ When opening a bug report, include:
 - Steps to reproduce
 - Environment details (OS, Node version, browser)
 
-## Code of Conduct
+## Community Expectations
 
-By participating in this project, you agree to follow the guidelines in
-`CODE_OF_CONDUCT.md`.
+Please keep discussions respectful, constructive, and focused on improving the
+project.
