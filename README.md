@@ -174,13 +174,15 @@ and deploys the Vite frontend to GitHub Pages on every push to `main`.
 
 1. Push this repo to GitHub.
 2. Open **Settings -> Pages** and set **Source** to **GitHub Actions**.
-3. Deploy `server/index.ts` to a backend host (Render/Railway/Fly/Cloud Run).
+3. Deploy `server/index.ts` to a backend host. The included `render.yaml`
+   blueprint deploys it to [Render](https://render.com) for free: in the Render
+   dashboard choose **New -> Blueprint**, pick this repo, and apply. The
+   blueprint already sets `CORS_ALLOWED_ORIGINS` to the Pages origin.
 4. In your GitHub repo, set **Settings -> Secrets and variables -> Actions**:
-   - **Variables**: `VITE_API_BASE_URL=https://your-api.example.com`
+   - **Variables**: `VITE_API_BASE_URL=https://<your-service>.onrender.com`
+     (the URL Render shows after the first deploy)
    - (or set it as a secret with the same name)
-5. In your backend host, set `CORS_ALLOWED_ORIGINS` to include your Pages origin
-   (example: `https://adhithiravi.github.io`).
-6. Push to `main`, then wait for the
+5. Push to `main` (or re-run the workflow), then wait for the
    **Deploy frontend to GitHub Pages** workflow.
 
 Your site will be available at:
@@ -195,6 +197,8 @@ Notes:
   local dev with the Vite proxy, but fails on GitHub Pages).
 - The Pages workflow now fails fast when `VITE_API_BASE_URL` is missing to avoid
   shipping a broken build.
+- Render's free tier spins the API down after ~15 minutes of inactivity; the
+  first request after that takes ~30-60 seconds while it wakes up.
 
 ---
 

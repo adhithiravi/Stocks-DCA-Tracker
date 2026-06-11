@@ -1,0 +1,18 @@
+# Render Blueprint: deploys the Express API (server/index.ts) as a free web
+# service. The frontend stays on GitHub Pages and calls this service via
+# VITE_API_BASE_URL.
+services:
+  - type: web
+    name: dca-dashboard-api
+    runtime: node
+    plan: free
+    # --include=dev ensures tsx (a devDependency) is installed even though
+    # Render builds with NODE_ENV=production.
+    buildCommand: npm ci --include=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://adhithiravi.github.io
