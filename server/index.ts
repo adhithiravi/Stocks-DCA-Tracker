@@ -51,7 +51,46 @@ app.use((req, res, next) => {
  * Returns current price, day change, 50/200-day moving averages, and the
  * 52-week range for each requested symbol. These are exactly the fields the
  * dashboard's buy-signal logic needs.
+ *
+ * Built from the v8 chart endpoint rather than yahooFinance.quote(): the v7
+ * quote API requires a cookie+crumb handshake that Yahoo rejects from
+ * datacenter IPs (Render, AWS, ...), while the chart API works everywhere.
  */
+function average(values: number[]): number | null {
+  if (values.length === 0) return null;
+  return values.reduce((sum, v) => sum + v, 0) / values.length;
+}
+
+async function quoteFromChart(symbol: string): Promise<QuoteResponseItem> {
+  const period2 = new Date();
+  const period1 = new Date(period2);
+  period1.setFullYear(period1.getFullYear() - 1);
+
+  const result = await yahooFinance.chart(symbol, { period1, period2, interval: '1d' });
+  const meta = result.meta;
+  const closes = (result.quotes || [])
+    .filter((row) => row?.close != null)
+    .map((row) => row.close as number);
+
+  const price = meta.regularMarketPrice ?? closes.at(-1) ?? null;
+  // The last bar is the most recent session, so the bar before it holds the
+  // previous close. chartPreviousClose only covers the single-bar case.
+  const prevClose = closes.length >= 2 ? closes[closes.length - 2] : meta.chartPreviousClose ?? null;
+  const change = price != null && prevClose ? ((price - prevClose) / prevClose) * 100 : null;
+
+  return {
+    symbol,
+    price,
+    change,
+    ma50: closes.length >= 50 ? average(closes.slice(-50)) : null,
+    ma200: closes.length >= 200 ? average(closes.slice(-200)) : null,
+    high52: meta.fiftyTwoWeekHigh ?? (closes.length ? Math.max(...closes) : null),
+    low52: meta.fiftyTwoWeekLow ?? (closes.length ? Math.min(...closes) : null),
+    volume: meta.regularMarketVolume ?? result.quotes?.at(-1)?.volume ?? null,
+    name: meta.shortName ?? meta.longName ?? symbol,
+  };
+}
+
 app.get('/api/quotes', async (req: Request, res: Response) => {
   const symbols = String(req.query.symbols ?? '')
     .split(',')
@@ -66,18 +105,7 @@ app.get('/api/quotes', async (req: Request, res: Response) => {
     const results: QuoteResponseItem[] = await Promise.all(
       symbols.map(async (symbol) => {
         try {
-          const q = await yahooFinance.quote(symbol);
-          return {
-            symbol,
-            price: q.regularMarketPrice ?? null,
-            change: q.regularMarketChangePercent ?? null,
-            ma50: q.fiftyDayAverage ?? null,
-            ma200: q.twoHundredDayAverage ?? null,
-            high52: q.fiftyTwoWeekHigh ?? null,
-            low52: q.fiftyTwoWeekLow ?? null,
-            volume: q.regularMarketVolume ?? null,
-            name: q.shortName ?? q.longName ?? symbol,
-          };
+          return await quoteFromChart(symbol);
         } catch (err) {
           // A single bad ticker should not fail the whole batch, but log the
           // real reason so genuine outages are not hidden behind "not found".
