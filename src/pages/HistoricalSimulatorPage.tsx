@@ -1,15 +1,17 @@
 import HistoricalDcaSimulator from '../components/HistoricalDcaSimulator';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useQuotes } from '../hooks/useQuotes';
+import { useMarket } from '../context/MarketContext';
 
 export default function HistoricalSimulatorPage() {
+  const { market } = useMarket();
   const { portfolio } = usePortfolio();
   const { quotes, loading, error, refresh } = useQuotes(portfolio);
 
   return (
     <div className="container">
       <header className="header">
-        <span className="page-eyebrow">Simulator</span>
+        <span className="page-eyebrow">Simulator &middot; {market.label}</span>
         <h1>Historical DCA simulator</h1>
         <p>
           Test what your monthly investing plan could have looked like over past years using historical

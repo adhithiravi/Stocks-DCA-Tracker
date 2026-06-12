@@ -1,4 +1,6 @@
 import { getBuySignals } from '../utils/signals';
+import { useMarket } from '../context/MarketContext';
+import { formatCurrency, formatPrice } from '../utils/format';
 import type { QuotesMap } from '../types/stocks';
 
 interface DipOpportunitiesProps {
@@ -19,6 +21,7 @@ export default function DipOpportunities({
   onRemove,
   onSelect,
 }: DipOpportunitiesProps) {
+  const { market } = useMarket();
   const dips = portfolio
     .filter((symbol) => getBuySignals(quotes[symbol]))
     .sort((a, b) => {
@@ -65,11 +68,11 @@ export default function DipOpportunities({
                     </span>
                   </div>
                   <div className="dip-details">
-                    <span>${data.price?.toFixed(2)}</span>
-                    {data.ma50 != null && <span>MA50: ${data.ma50.toFixed(2)}</span>}
+                    <span>{data.price != null ? formatPrice(data.price, market) : '\u2014'}</span>
+                    {data.ma50 != null && <span>MA50: {formatPrice(data.ma50, market)}</span>}
                     {data.low52 != null && data.high52 != null && (
                       <span>
-                        52W: ${data.low52.toFixed(0)}&ndash;${data.high52.toFixed(0)}
+                        52W: {formatCurrency(data.low52, market)}&ndash;{formatCurrency(data.high52, market)}
                       </span>
                     )}
                   </div>

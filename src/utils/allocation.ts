@@ -52,7 +52,7 @@ export const STRATEGIES: Record<StrategyKey, StrategyDefinition> = {
     fn: allocateByUndervalued,
     description: 'Concentrate capital on the biggest dips.',
     detail:
-      'Puts this month\'s money only into the holdings trading meaningfully below their 50-day average (5%+ below), splitting it evenly among them and ranking the cheapest first. This is a "buy the dip" tilt - you lean into weakness. If nothing is on sale, every position gets $0, a cue to hold cash or switch to Equal Spread.',
+      'Puts this month\'s money only into the holdings trading meaningfully below their 50-day average (5%+ below), splitting it evenly among them and ranking the cheapest first. This is a "buy the dip" tilt - you lean into weakness. If nothing is on sale, every position gets zero, a cue to hold cash or switch to Equal Spread.',
   },
   equal: {
     label: 'Equal Spread',

@@ -1,3 +1,6 @@
+import { useMarket } from '../context/MarketContext';
+import { formatCurrency } from '../utils/format';
+
 interface MetricGridProps {
   holdingsCount: number;
   signalCount: number;
@@ -14,6 +17,7 @@ export default function MetricGrid({
   monthlyAmount,
   strategyLabel,
 }: MetricGridProps) {
+  const { market } = useMarket();
   const metrics = [
     {
       label: 'Assets tracked',
@@ -28,7 +32,7 @@ export default function MetricGrid({
     },
     {
       label: 'Monthly DCA',
-      value: `$${monthlyAmount.toLocaleString()}`,
+      value: formatCurrency(monthlyAmount, market),
       hint: 'Current monthly contribution target',
     },
     {

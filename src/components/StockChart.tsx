@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { fetchHistory } from '../api/stocks';
+import { useMarket } from '../context/MarketContext';
+import { formatPrice } from '../utils/format';
 import type { HistoryPoint, HistoryRange, QuoteResponseItem } from '../types/stocks';
 
 const RANGES: HistoryRange[] = ['1mo', '3mo', '6mo', '1y', '2y', '5y'];
@@ -45,6 +47,7 @@ interface ChartData {
  * SVG (no chart library) to keep the dependency footprint at zero.
  */
 export default function StockChart({ symbol, quote, onClose }: StockChartProps) {
+  const { market } = useMarket();
   const [range, setRange] = useState<HistoryRange>('5y');
   const [series, setSeries] = useState<HistoryPoint[]>([]);
   const [loading, setLoading] = useState(false);
@@ -154,7 +157,7 @@ export default function StockChart({ symbol, quote, onClose }: StockChartProps) 
           <div className="chart-head-right">
             {chart && (
               <div className="chart-price-block">
-                <span className="chart-current">${chart.last.toFixed(2)}</span>
+                <span className="chart-current">{formatPrice(chart.last, market)}</span>
                 <span className={`chart-pct ${up ? 'positive' : 'negative'}`}>
                   {up ? '\u2191' : '\u2193'} {Math.abs(chart.pctChange).toFixed(1)}% &middot;{' '}
                   {RANGE_LABELS[range]}
@@ -203,7 +206,7 @@ export default function StockChart({ symbol, quote, onClose }: StockChartProps) 
                     className="chart-gridline"
                   />
                   <text x={PAD.left - 8} y={t.y + 4} className="chart-axis-label" textAnchor="end">
-                    ${t.v.toFixed(0)}
+                    {market.currencySymbol}{t.v.toFixed(0)}
                   </text>
                 </g>
               ))}
@@ -241,7 +244,7 @@ export default function StockChart({ symbol, quote, onClose }: StockChartProps) 
 
           {hover && chart && (
             <div className="chart-tooltip">
-              <strong>${hover.point.close.toFixed(2)}</strong>
+              <strong>{formatPrice(hover.point.close, market)}</strong>
               <span>{fmtDate(hover.point.date)}</span>
             </div>
           )}

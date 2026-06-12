@@ -1,4 +1,5 @@
 import { STRATEGIES } from '../utils/allocation';
+import { useMarket } from '../context/MarketContext';
 import type { StrategyKey } from '../types/stocks';
 
 interface ContributionSettingsProps {
@@ -18,6 +19,9 @@ export default function ContributionSettings({
   strategy,
   onStrategyChange,
 }: ContributionSettingsProps) {
+  const { market } = useMarket();
+  const { min, sliderMin, sliderMax, sliderStep } = market.contribution;
+
   return (
     <div className="section">
       <div className="section-head">
@@ -26,21 +30,21 @@ export default function ContributionSettings({
       </div>
 
       <div className="control-group">
-        <label className="control-label">Monthly DCA amount</label>
+        <label className="control-label">Monthly DCA amount ({market.currencySymbol})</label>
         <div className="slider-display">
           <input
             type="range"
             className="input-slider"
-            min="500"
-            max="10000"
-            step="100"
+            min={sliderMin}
+            max={sliderMax}
+            step={sliderStep}
             value={monthlyAmount}
             onChange={(e) => onAmountChange(parseInt(e.target.value, 10))}
           />
           <input
             type="number"
             value={monthlyAmount}
-            onChange={(e) => onAmountChange(Math.max(100, parseInt(e.target.value, 10) || 0))}
+            onChange={(e) => onAmountChange(Math.max(min, parseInt(e.target.value, 10) || 0))}
           />
         </div>
         <p className="control-help">Set a realistic amount you can consistently invest each month.</p>

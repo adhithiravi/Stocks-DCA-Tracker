@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { getBuySignals } from '../utils/signals';
+import { useMarket } from '../context/MarketContext';
+import { formatCurrency } from '../utils/format';
 import type { QuotesMap } from '../types/stocks';
 
 interface HoldingsGridProps {
@@ -21,6 +23,7 @@ export default function HoldingsGrid({
   onRemove,
   onSelect,
 }: HoldingsGridProps) {
+  const { market } = useMarket();
   const [newTicker, setNewTicker] = useState('');
 
   const handleAdd = () => {
@@ -66,7 +69,7 @@ export default function HoldingsGrid({
               <div className="holding-ticker">{symbol}</div>
               {data && !('error' in data) && data.price != null ? (
                 <>
-                  <div className="holding-price">${data.price.toFixed(0)}</div>
+                  <div className="holding-price">{formatCurrency(data.price, market)}</div>
                   <div className={`holding-change ${(data.change ?? 0) < 0 ? 'negative' : 'positive'}`}>
                     {(data.change ?? 0) > 0 ? '\u2191' : '\u2193'} {Math.abs(data.change ?? 0).toFixed(1)}%
                   </div>
@@ -82,7 +85,7 @@ export default function HoldingsGrid({
       <div className="add-input-group">
         <input
           type="text"
-          placeholder="Add ticker (e.g., VTV, SCHX)"
+          placeholder={market.tickerPlaceholder}
           value={newTicker}
           onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}

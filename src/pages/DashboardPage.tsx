@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MetricGrid from '../components/MetricGrid';
 import DipOpportunities from '../components/DipOpportunities';
 import ContributionSettings from '../components/ContributionSettings';
@@ -8,10 +8,12 @@ import ValuationRegimeBadge from '../components/ValuationRegimeBadge';
 import AllocationOutputPanel from '../components/AllocationOutputPanel';
 import { usePortfolio } from '../hooks/usePortfolio';
 import { useQuotes } from '../hooks/useQuotes';
+import { useMarket } from '../context/MarketContext';
 import { IS_PROD_API_CONFIGURED } from '../api/stocks';
 import { STRATEGIES } from '../utils/allocation';
 import { getBuySignals } from '../utils/signals';
 import { getValuationRegime } from '../utils/valuationRegime';
+import { MARKETS } from '../utils/markets';
 import type { StrategyKey } from '../types/stocks';
 
 /**
@@ -19,12 +21,20 @@ import type { StrategyKey } from '../types/stocks';
  * presentational components.
  */
 export default function DashboardPage() {
+  const { marketKey, market } = useMarket();
   const { portfolio, addSymbol, removeSymbol } = usePortfolio();
   const { quotes, loading, error, refresh } = useQuotes(portfolio);
 
-  const [monthlyAmount, setMonthlyAmount] = useState(2500);
+  const [monthlyAmount, setMonthlyAmount] = useState(market.contribution.default);
   const [strategy, setStrategy] = useState<StrategyKey>('undervalued');
   const [selectedSymbol, setSelectedSymbol] = useState<string | null>(null);
+
+  // A US dollar amount makes no sense in rupees (and vice versa); reset to the
+  // new market's default and close any open chart on toggle.
+  useEffect(() => {
+    setMonthlyAmount(MARKETS[marketKey].contribution.default);
+    setSelectedSymbol(null);
+  }, [marketKey]);
 
   const signalCount = useMemo(
     () => portfolio.filter((s) => getBuySignals(quotes[s])).length,
@@ -35,7 +45,7 @@ export default function DashboardPage() {
   return (
     <div className="container">
       <header className="header">
-        <span className="page-eyebrow">Portfolio dashboard</span>
+        <span className="page-eyebrow">Portfolio dashboard &middot; {market.label}</span>
         <h1>DCA plan</h1>
         <p>
           Monitor signals, adjust monthly contributions, and stay consistent with your long-term

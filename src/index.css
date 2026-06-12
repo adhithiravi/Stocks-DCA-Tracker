@@ -85,6 +85,12 @@ select {
   color: var(--text-muted);
 }
 
+.app-nav-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .app-nav-links {
   display: inline-flex;
   align-items: center;
@@ -93,6 +99,38 @@ select {
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface-soft);
+}
+
+.market-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+}
+
+.market-toggle-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.market-toggle-btn:hover {
+  background: #f3edff;
+  color: var(--text);
+}
+
+.market-toggle-btn.active {
+  background: var(--text);
+  color: #ffffff;
 }
 
 .app-nav-link {
@@ -1155,12 +1193,27 @@ select {
     align-items: flex-start;
   }
 
+  .app-nav-right {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
   .app-nav-links {
     width: 100%;
   }
 
   .app-nav-link {
     text-align: center;
+    flex: 1;
+  }
+
+  .market-toggle {
+    width: 100%;
+  }
+
+  .market-toggle-btn {
     flex: 1;
   }
 

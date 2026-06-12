@@ -1,5 +1,8 @@
 import { STRATEGIES } from '../utils/allocation';
 import { getBuySignals } from '../utils/signals';
+import { useMarket } from '../context/MarketContext';
+import { formatCurrency } from '../utils/format';
+import type { MarketConfig } from '../utils/markets';
 import type { QuotesMap, StrategyKey } from '../types/stocks';
 
 interface AllocationOutputPanelProps {
@@ -10,10 +13,11 @@ interface AllocationOutputPanelProps {
   onSelect: (symbol: string) => void;
 }
 
-function formatMoney(amount: number): string {
-  return amount.toLocaleString(undefined, {
-    minimumFractionDigits: amount < 100 ? 2 : 0,
-    maximumFractionDigits: amount < 100 ? 2 : 0,
+function formatMoney(amount: number, market: MarketConfig): string {
+  const digits = amount < 100 ? 2 : 0;
+  return formatCurrency(amount, market, {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
   });
 }
 
@@ -27,6 +31,7 @@ export default function AllocationOutputPanel({
   strategy,
   onSelect,
 }: AllocationOutputPanelProps) {
+  const { market } = useMarket();
   const allocations = STRATEGIES[strategy].fn(portfolio, quotes, monthlyAmount);
   const rows = Object.entries(allocations).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   const fundedCount = rows.filter(([, amount]) => amount > 0).length;
@@ -52,10 +57,10 @@ export default function AllocationOutputPanel({
               Funded: <strong>{fundedCount}</strong> / <strong>{rows.length}</strong>
             </span>
             <span>
-              Allocated: <strong>${formatMoney(allocatedTotal)}</strong>
+              Allocated: <strong>{formatMoney(allocatedTotal, market)}</strong>
             </span>
             <span>
-              Remaining cash: <strong>${formatMoney(remainingCash)}</strong>
+              Remaining cash: <strong>{formatMoney(remainingCash, market)}</strong>
             </span>
           </div>
 
@@ -80,7 +85,7 @@ export default function AllocationOutputPanel({
                   title={`View ${symbol} price chart`}
                 >
                   <div className="allocation-ticker">{symbol}</div>
-                  <div className="allocation-amount">${formatMoney(amount)}</div>
+                  <div className="allocation-amount">{formatMoney(amount, market)}</div>
                   {hasSignal && <div className="signal-badge">BUY SIGNAL</div>}
                   {amount <= 0 && <div className="allocation-zero-note">No buy this month</div>}
                 </button>
